@@ -17,7 +17,7 @@ Benchmarks 1-3 are very similar to the classic STREAM benchmarks
 
 ## Related
 
-- https://github.com/paranumal/streamparanumal
+- StreamParanumal: https://github.com/paranumal/streamparanumal
 - BabelStream: https://github.com/UoB-HPC/BabelStream
 - STREAM: https://www.cs.virginia.edu/stream/
 - Livermore Loops: https://www.netlib.org/benchmark/
@@ -31,10 +31,15 @@ Other BW-related benchmarks:
 - https://github.com/paranumal/libparanumal
 
 Vendor benchmarks:
-- AMD: https://www.amd.com/en/developer/zen-software-studio/applications/spack/stream-benchmark.html
-- https://nvidia.github.io/grace-cpu-benchmarking-guide/foundations/STREAM/index.html
-- Nvidia STREAM:
-- Intel STREAM:
+
+- AMD: 
+  * https://www.amd.com/en/developer/zen-software-studio/applications/spack/stream-benchmark.html
+- Nvidia:
+  * https://docs.nvidia.com/nvidia-hpc-benchmarks/STREAM_Benchmark.html
+  * https://nvidia.github.io/grace-cpu-benchmarking-guide/foundations/STREAM/index.html
+- Intel:
+  * https://github.com/intel/memory-bandwidth-benchmarks
+  * https://dgpu-docs.intel.com/solutions/max-sw/hpc/BabelSTREAM.html
 
 ## Literature
 
