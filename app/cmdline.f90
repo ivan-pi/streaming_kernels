@@ -343,16 +343,16 @@ contains
     character(len=*), intent(in) :: name
     write(*,*) 'Usage: ', trim(name), ' [OPTIONS]'
     write(*,*) 'Options:'
-    write(*,*) '  --d <int>           Device number'
-    write(*,*) '  --n <int>           Number of elements (mutually exclusive with --range, --log-range)'
-    write(*,*) '  --float             Enable FP32 stream test'
-    write(*,*) '  --range a:b[:step]  Linear range (e.g. 10:100:5)'
-    write(*,*) '  --log-range a:b:n   Logarithmic range with n points (e.g. 1:1000:4)'
-    write(*,*) '  --tests "BS1,BS3"   Comma-separated list of tests in quotes'
-    write(*,*) '  --repeat <int>      Number of repetitions'
-    write(*,*) '  --stats             Show statistics'
-    write(*,*) '  --help              Show this help message'
-    write(*,*) '  --version           Show program version'
+    write(*,*) '  -d, --device <int>      Device number'
+    write(*,*) '  -n <int>                Number of elements (mutually exclusive with --range, --log-range)'
+    write(*,*) '  --float                 Enable FP32 stream test'
+    write(*,*) '  -r, --range a:b[:step]  Linear range (e.g. 10:100:5)'
+    write(*,*) '  --log-range a:b:n       Logarithmic range with n points (e.g. 1:1000:4)'
+    write(*,*) '  -t, --tests "BS1,BS3"   Comma-separated list of tests in quotes'
+    write(*,*) '  -k, --repeat <int>      Number of repetitions'
+    write(*,*) '  --stats                 Show statistics'
+    write(*,*) '  --help                  Show this help message'
+    write(*,*) '  --version               Show program version'
   end subroutine print_help
 
   subroutine print_version(name)
