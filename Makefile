@@ -7,15 +7,22 @@
 
 
 FC=gfortran
-FFLAGS=-mcpu=native -O3 -DSK_OMP_TARGET_LOOP -fopenmp
+FFLAGS=-mcpu=native -O3
 LDFLAGS=
 LDLIBS=-lblas
 
 
-KERNELS=src/streaming_kernels.F90
-
-streaming_kernels: $(KERNELS) app/cmdline.f90 
+streaming_kernels: src/streaming_kernels.F90 app/cmdline.f90 
 	$(FC) $(FFLAGS) -o $@ $^ $(LDLIBS)
+
+streaming_kernels_loops: FFLAGS += -DSK_LOOPS
+streaming_kernels_loops: src/streaming_kernels.F90 app/cmdline.f90 
+	$(FC) $(FFLAGS) -o $@ $^ $(LDLIBS)
+
+streaming_kernels_omp: FFLAGS += -DSK_OMP_PARALLEL_DO -fopenmp
+streaming_kernels_omp: src/streaming_kernels.F90 app/cmdline.f90 
+	$(FC) $(FFLAGS) -o $@ $^ $(LDLIBS)
+	
 
 .PHONY: clean
 clean:
