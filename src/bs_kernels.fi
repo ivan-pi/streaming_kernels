@@ -1,0 +1,39 @@
+
+! Assumptions which can be made:
+! - dp is defined to be a double-precision type
+
+subroutine bs1(n,a,b)
+integer, intent(in) :: n
+real(dp), intent(in) :: a(n)
+real(dp), intent(out) :: b(n)
+b = a
+end subroutine
+
+subroutine bs2(n,alpha,x,beta,y)
+integer, intent(in) :: n
+real(dp), intent(in) :: alpha, x(n), beta
+real(dp), intent(inout) :: y(n)
+y = alpha*x + beta*y
+end subroutine
+
+subroutine bs3(n,a,nrm)
+integer, intent(in) :: n
+real(dp), intent(in) :: a(n)
+real(dp), intent(out) ::nrm
+nrm = dot_product(a,a)
+end subroutine
+
+subroutine bs4(n,x,y,nrm)
+integer, intent(in) :: n
+real(dp), intent(in) :: x(n), y(n)
+real(dp), intent(out) ::nrm
+nrm = dot_product(x,y)
+end subroutine
+
+subroutine bs5(n,Ap,alpha,r,rdr)
+integer, intent(in) :: n
+real(dp), intent(in) :: Ap(n), alpha
+real(dp), intent(out) :: r(n), rdr
+r = r + alpha*Ap
+rdr = dot_product(r,r)
+end subroutine

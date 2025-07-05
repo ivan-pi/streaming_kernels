@@ -182,12 +182,7 @@ contains
 
   subroutine run_test(t,n,reps)
 
-    use streaming_kernels_seq, only: &
-      bs1 => bs1_v1, &
-      bs2 => bs2_v1, &
-      bs3 => bs3_v1, &
-      bs4 => bs4_v1, &
-      bs5 => bs5_v1
+    use streaming_kernels, only: bs1,bs2,bs3,bs4,bs5
 
     integer, intent(in) :: t, n, reps
     integer, parameter :: dp = kind(1.0d0), sp = kind(1.0e0)

@@ -1,0 +1,62 @@
+
+
+subroutine bs1(n,a,b)
+integer, intent(in) :: n
+real(dp), intent(in) :: a(n)
+real(dp), intent(out) :: b(n)
+integer :: i
+!$omp simd
+do i = 1, n
+    b(i) = a(i)
+end do 
+end subroutine
+
+subroutine bs2(n,alpha,x,beta,y)
+integer, intent(in) :: n
+real(dp), intent(in) :: alpha, x(n), beta
+real(dp), intent(inout) :: y(n)
+integer :: i
+!$omp simd
+do i = 1, n
+y(i) = alpha*x(i) + beta*y(i)
+end do
+end subroutine
+
+subroutine bs3(n,a,nrm)
+integer, intent(in) :: n
+real(dp), intent(in) :: a(n)
+real(dp), intent(out) :: nrm
+integer :: i
+
+nrm = 0.0_dp
+!$omp simd reduction(+:nrm)
+do i = 1, n
+    nrm = nrm + a(i)*a(i)
+end do
+
+end subroutine
+
+subroutine bs4(n,x,y,nrm)
+integer, intent(in) :: n
+real(dp), intent(in) :: x(n), y(n)
+real(dp), intent(out) ::nrm
+integer :: i
+nrm = 0.0_dp
+!$omp simd reduction(+:nrm)
+do i = 1, n
+    nrm = nrm + x(i)*y(i)
+end do
+end subroutine
+
+subroutine bs5(n,Ap,alpha,r,rdr)
+integer, intent(in) :: n
+real(dp), intent(in) :: Ap(n), alpha
+real(dp), intent(out) :: r(n), rdr
+integer :: i
+rdr = 0.0_dp
+!$omp simd reduction(+:rdr)
+do i = 1, n
+    r(i) = r(i) + alpha*Ap(i)
+    rdr = rdr + r(i)*r(i)
+end do
+end subroutine

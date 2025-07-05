@@ -1,0 +1,50 @@
+subroutine bs1(n,a,b)
+integer, intent(in) :: n
+real(dp), intent(in) :: a(n)
+real(dp), intent(out) :: b(n)
+call dcopy(n,a,1,b,1)
+end subroutine
+
+subroutine bs2(n,alpha,x,beta,y)
+integer, intent(in) :: n
+real(dp), intent(in) :: alpha, x(n), beta
+real(dp), intent(inout) :: y(n)
+#if defined(HAVE_DAXPBY)
+call daxpby(n,alpha,x,1,beta,y,1)
+#else
+call dscal(n,beta,y,1)
+call daxpy(n,alpha,x,1,y,1)
+#endif
+end subroutine
+
+subroutine bs3(n,a,nrm)
+integer, intent(in) :: n
+real(dp), intent(in) :: a(n)
+real(dp), intent(out) ::nrm
+
+nrm = ddot(n,a,1,a,1)
+
+end subroutine
+
+subroutine bs4(n,x,y,nrm)
+integer, intent(in) :: n
+real(dp), intent(in) :: x(n), y(n)
+real(dp), intent(out) ::nrm
+
+nrm = ddot(n,x,1,y,1)
+
+end subroutine
+
+subroutine bs5(n,Ap,alpha,r,rdr)
+integer, intent(in) :: n
+real(dp), intent(in) :: Ap(n), alpha
+real(dp), intent(out) :: r(n), rdr
+
+call daxpy(n,alpha,Ap,1,r,1)
+rdr = ddot(n,r,1,r,1)
+
+! Intel MKL has a mkl_sparse_?_dotmv operation which performs,
+! y := alpha*op(A)*x + beta*y
+! d := sum_i(xi*yi) (real case)
+
+end subroutine
