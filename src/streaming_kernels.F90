@@ -19,22 +19,47 @@ interface
         double precision, intent(inout) :: y(*)
     end subroutine
 #endif
-    function ddot(n,x,incx,y,incy)
-        integer, intent(in) :: n, incx, incy
-        double precision, intent(in) :: x(*), y(*)
-        double precision :: ddot
-    end function
     subroutine dcopy(n,x,incx,y,incy)
         integer, intent(in) :: n, incx, incy
         double precision, intent(in) :: x(*)
         double precision, intent(inout) :: y(*)
     end subroutine
+    function ddot(n,x,incx,y,incy)
+        integer, intent(in) :: n, incx, incy
+        double precision, intent(in) :: x(*), y(*)
+        double precision :: ddot
+    end function
+    function dnrm2(n,x,incx)
+        integer, intent(in) :: n, incx
+        double precision, intent(in) :: x(*)
+        double precision :: dnrm2
+    end function
     subroutine dscal(n,alpha,x,incx)
         integer, intent(in) :: n, incx
         double precision, intent(in) :: alpha
         double precision, intent(inout) :: x(*)
     end subroutine
 end interface
+
+#if HAVE_NEON
+interface
+    ! dot_product_neon_fma_unroll8_pow2_tail
+    function dot_product_neon(a,b,n) bind(c,name="dot_product_neon_fma_unroll8_pow2_tail_simple")
+    !function dot_product_neon(a,b,n) bind(c,name="dot_product_neon_fma_unroll16_pow2_tail")
+        use, intrinsic :: iso_c_binding
+        integer(c_size_t), value :: n
+        real(c_double), intent(in) :: a(n), b(n)
+        real(c_double) :: dot_product_neon
+    end function
+    function squared_norm_neon(a,n) bind(c,name="squared_norm_neon_fma_unroll8_pow2_tail_simple")
+    !function squared_norm_neon(a,n) bind(c,name="neon_squared_norm_unroll4")
+        use, intrinsic :: iso_c_binding
+        integer(c_size_t), value :: n
+        real(c_double), intent(in) :: a(n)
+        real(c_double) :: squared_norm_neon
+    end function
+end interface
+#endif
 
 contains
 
