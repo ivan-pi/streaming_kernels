@@ -2,7 +2,7 @@
 
 set -e
 
-EXE=./streaming_kernels
+EXE="./streaming_kernels -n 10000000"
 TEST_FLAG="-t BS3"
 
 # Names and corresponding FFLAGS
