@@ -1,19 +1,57 @@
-# Streaming kernels
+# Streaming Kernels
 
-Streaming kernels 
+## Description
 
-The following streaming benchmarks are measured:
-- BS1: Vector Copy
-- BS2: Vector AXPBY
-- BS3: Vector Norm
-- BS4: Vector Inner Product
-- BS5: Fused CG Update
+This repository provides streaming benchmarks designed to measure memory bandwidth and kernel efficiency. The benchmarks were described in the work
 
-Benchmarks 1-3 are very similar to the classic STREAM benchmarks
-- copy
-- scale
-- add
-- triad
+> Chalmers, N., & Warburton, T. (2020). Portable high-order finite element kernels I: Streaming Operations. https://arxiv.org/abs/2009.10917
+
+The code accompying the Chalmers & Warburton article can be found in the [StreamParanumal](https://github.com/paranumal/streamparanumal) repository.
+
+The benchmarks included are:
+
+- **BS1:** Vector Copy
+- **BS2:** Vector AXPBY
+- **BS3:** Vector Norm
+- **BS4:** Vector Inner Product
+- **BS5:** Fused CG Update
+
+These operations are commonly found in iterative solvers for linear systems, such as the conjugate-gradient method (CG). Benchmarks BS1–BS2 are similar to the classic STREAM benchmarks (copy, scale, add, triad). 
+
+## How to Build and Run the Benchmark
+
+Currently, a simple Makefile setup is in place.
+
+The default configuration assumes gfortran is available: 
+
+```sh
+make
+```
+
+This should create the exectuble `./streaming_kernels`. See the Makefile for other available targets.
+
+The options available are:
+
+```txt
+ Usage: ./streaming_kernels_blas [OPTIONS]
+ Options:
+   -d, --device <int>      Device number
+   -n <int>                Number of elements (mutually exclusive with --range, --log-range)
+   --float                 Enable FP32 stream test
+   -r, --range a:b[:step]  Linear range (e.g. 10:100:5)
+   --log-range a:b:n       Logarithmic range with n points (e.g. 1:1000:4)
+   -t, --tests <tests>     Comma-separated list of tests in quotes (e.g. "BS1,BS3")
+   -k, --repeat <int>      Number of repetitions
+   --stats                 Show statistics
+   --help                  Show this help message
+   --version               Show program version
+```
+
+(Note: The options are still subject of change.)
+
+---
+
+The remainder of this file is a "link dump". 
 
 ## Related
 
