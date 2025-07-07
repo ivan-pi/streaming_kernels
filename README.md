@@ -28,12 +28,13 @@ The default configuration assumes gfortran is available:
 make
 ```
 
-This should create the exectuble `./streaming_kernels`. See the Makefile for other available targets.
+The default executable target is named `./streaming_kernels`. 
+See the Makefile for other available targets.
 
 The options available are:
 
 ```txt
- Usage: ./streaming_kernels_blas [OPTIONS]
+ Usage: ./streaming_kernels [OPTIONS]
  Options:
    -d, --device <int>      Device number
    -n <int>                Number of elements (mutually exclusive with --range, --log-range)
