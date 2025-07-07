@@ -12,6 +12,7 @@ program cmdline_parser
 
   character(len=3), parameter :: test_names(*) = ["BS1", "BS2", "BS3", "BS4", "BS5"]
   logical :: test_enabled(5)
+  real :: bw_rates(5)
 
   !vvv---- Executable code starts here ----vvv
 
@@ -156,7 +157,7 @@ program cmdline_parser
     call print_config()
   end block
 
-  print '(/,4A15)', "Length", "Avg. time (s)", "Rate (GB/s)", "Kernel"
+  print '(/,4A15)', "Kernel", "Length", "Avg. time (s)", "Rate (GB/s)" 
 
   ! Loop over available tests
   do t = 1, size(test_names)
@@ -218,9 +219,16 @@ contains
 
     allocate(x(n),y(n))
 
+    !$omp parallel do
+    do k = 1, n
+      x(k) = 0.0d0
+      y(k) = 0.0d0
+    end do
+
+! FIXME: switch from random to fixed initialization
+
     call random_number(x)
     call random_number(y)
-
 
     if (reps >= 1) then
       ! Run the benchmark for a fixed number of repetitions
@@ -330,7 +338,8 @@ contains
       elapsed = elapsed / nreps 
     end if
 
-    print '(I15,2G15.5,A15)', n, elapsed, n*bw(t)/elapsed*1.0e-9, test_names(t)
+    bw_rates(t) = n*bw(t)/elapsed*1.0e-9
+    print '(A15,I15,2G15.5)', test_names(t), n, elapsed, bw_rates(t)
 
   end subroutine
 
