@@ -32,7 +32,7 @@ program cmdline_parser
   range_is_log = .false.
 
   fp32_test = .false.
-  stats = .false.
+  stats = .true.
 
   argc = command_argument_count()
   i = 1
@@ -120,39 +120,43 @@ program cmdline_parser
     stop 1
   end if
 
+  if (stats) then
+    ! Example output summary
+    write(*,'(A,A)') 'Compiler version : ', compiler_version()
+    write(*,'(A,A)') 'Compiler options : ', compiler_options()
 
-  ! Example output summary
-  write(*,'(A,A)') 'Compiler version : ', compiler_version()
-  write(*,'(A,A)') 'Compiler options : ', compiler_options()
+    write(*,*) 'Device       :', device
+    write(*,*) 'FP32 test    :', fp32_test
+    if (n_set) then
+      write(*,*) 'Number of elements (--n):', n_elements
+    else if (range_set .or. logrange_set) then
+      if (range_is_log) then
+        write(*,*) 'Log range (--log-range):', nrange
 
-  write(*,*) 'Device       :', device
-  write(*,*) 'FP32 test    :', fp32_test
-  if (n_set) then
-    write(*,*) 'Number of elements (--n):', n_elements
-  else if (range_set .or. logrange_set) then
-    if (range_is_log) then
-      write(*,*) 'Log range (--log-range):', nrange
-
-        do i = 1, size(nrange)
-          print *, nrange(i), nrange(i)**2
-        end do 
-    else
-      write(*,*) 'Linear range (--range):', nstart, nend, nstep
+          do i = 1, size(nrange)
+            print *, nrange(i), nrange(i)**2
+          end do 
+      else
+        write(*,*) 'Linear range (--range):', nstart, nend, nstep
+      end if
     end if
+
+    if (allocated(tests)) then
+      write(*,*) 'Selected tests:', tests
+    else
+      write(*,*) 'Selected tests: (none)'
+    end if
+
+    write(*,*) 'Repetitions  :', repetitions
+    write(*,*) 'Show stats   :', stats
   end if
 
-  if (allocated(tests)) then
-    write(*,*) 'Selected tests:', tests
-  else
-    write(*,*) 'Selected tests: (none)'
-  end if
-
-  write(*,*) 'Repetitions  :', repetitions
-  write(*,*) 'Show stats   :', stats
-
+  block
+    use streaming_kernels
+    call print_config()
+  end block
 
   print '(/,4A15)', "Length", "Avg. time (s)", "Rate (GB/s)", "Kernel"
-
 
   ! Loop over available tests
   do t = 1, size(test_names)

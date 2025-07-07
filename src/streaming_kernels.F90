@@ -61,7 +61,33 @@ interface
 end interface
 #endif
 
+#if defined(_OPENMP)
+    integer :: device = -1
+#endif
+
 contains
+
+  subroutine print_config()
+
+#if defined(_OPENMP)
+        use omp_lib
+        integer :: k
+        !$omp parallel
+        k = omp_get_num_threads()
+        !$omp single
+        write(*,'("OpenMP enabled, running with ",I0," threads")') k
+        !$omp end single
+        !$omp end parallel
+
+        device = omp_get_default_device()
+
+        if (device == omp_get_initial_device()) then
+            print '(A)', "OpenMP default device is the HOST device."
+        end if
+#endif
+
+  end subroutine
+
 
 #if defined(SK_BLAS)
 #include "bs_kernels_blas.fi"
