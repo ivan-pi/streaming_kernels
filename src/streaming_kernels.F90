@@ -81,9 +81,10 @@ contains
 #if defined(_OPENMP)
         use omp_lib
         integer :: k
+
         !$omp parallel
-        k = omp_get_num_threads()
         !$omp single
+        k = omp_get_num_threads()
         write(*,'("OpenMP enabled, running with ",I0," threads")') k
         !$omp end single
         !$omp end parallel
@@ -101,6 +102,8 @@ contains
 #include "bs_kernels_blas.fi"
 #if defined(SK_BLAS_OMP_SPMD)
 #include "bs_kernels_blas_omp_spmd.fi"
+#if defined(SK_BLIS)
+#include "bs_kernels_blis.fi"
 #elif defined(SK_LOOPS)
 #include "bs_kernels_loops.fi"
 #elif defined(SK_OMP_PARALLEL_DO)

@@ -1,0 +1,48 @@
+subroutine bs1(n,a,b)
+integer, intent(in) :: n
+real(dp), intent(in) :: a(n)
+real(dp), intent(out) :: b(n)
+call bli_dcopyv(BLIS_NO_CONJUGATE,n,a,1,b,1)
+end subroutine
+
+subroutine bs2(n,alpha,x,beta,y)
+integer, intent(in) :: n
+real(dp), intent(in) :: alpha, x(n), beta
+real(dp), intent(inout) :: y(n)
+
+call bli_daxpbyv(BLIS_NO_CONJUGATE,n,alpha,x,1,beta,y,1)
+
+end subroutine
+
+subroutine bs3(n,a,nrm)
+integer, intent(in) :: n
+real(dp), intent(in) :: a(n)
+real(dp), intent(out) ::nrm
+
+#ifdef BS3_USE_NRM2
+call bli_dnormfv(n,a,1,nrm)
+nrm = nrm**2
+#else
+call bli_ddotv(BLIS_NO_CONJUGATE,BLIS_NO_CONJUGATE,n,a,1,a,1,nrm)
+#endif
+
+end subroutine
+
+subroutine bs4(n,x,y,nrm)
+integer, intent(in) :: n
+real(dp), intent(in) :: x(n), y(n)
+real(dp), intent(out) ::nrm
+
+call bli_ddotv(BLIS_NO_CONJUGATE,BLIS_NO_CONJUGATE,n,x,1,y,1,nrm)
+
+end subroutine
+
+subroutine bs5(n,Ap,alpha,r,rdr)
+integer, intent(in) :: n
+real(dp), intent(in) :: Ap(n), alpha
+real(dp), intent(out) :: r(n), rdr
+
+call bli_daxpyv(BLIS_NO_CONJUGATE,n,alpha,Ap,1,r,1)
+call bli_ddotv(BLIS_NO_CONJUGATE,BLIS_NO_CONJUGATE,n,r,1,r,1,rdr)
+
+end subroutine
