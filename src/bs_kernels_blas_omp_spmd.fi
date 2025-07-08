@@ -63,7 +63,7 @@ hi = min((tid+1)*chunk,n)
 nlocal = hi - lo + 1
 
 #ifdef BS3_USE_NRM2
-nrm = nrm + dnrm2(nlocal,a(lo),1))
+nrm = nrm + (dnrm2(nlocal,a(lo),1)))**2
 #else
 nrm = nrm + ddot(nlocal,a(lo),1,a(lo),1)
 #endif
