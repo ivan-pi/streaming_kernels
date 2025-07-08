@@ -20,7 +20,12 @@ subroutine bs3(n,a,nrm)
 integer, intent(in) :: n
 real(dp), intent(in) :: a(n)
 real(dp), intent(out) ::nrm
+
+#ifdef BS3_USE_NORM2
+nrm = (norm2(a))**2
+#else
 nrm = dot_product(a,a)
+#endif
 end subroutine
 
 subroutine bs4(n,x,y,nrm)

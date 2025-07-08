@@ -22,7 +22,7 @@ integer, intent(in) :: n
 real(dp), intent(in) :: a(n)
 real(dp), intent(out) ::nrm
 
-#ifdef BS3_USE_NRM2
+#ifdef BS3_USE_NORM2
 nrm = (dnrm2(n,a,1))**2
 #else
 nrm = ddot(n,a,1,a,1)

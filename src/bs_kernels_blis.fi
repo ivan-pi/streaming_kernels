@@ -19,7 +19,7 @@ integer, intent(in) :: n
 real(dp), intent(in) :: a(n)
 real(dp), intent(out) ::nrm
 
-#ifdef BS3_USE_NRM2
+#ifdef BS3_USE_NORM2
 call bli_dnormfv(n,a,1,nrm)
 nrm = nrm**2
 #else

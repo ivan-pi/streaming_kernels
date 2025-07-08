@@ -55,7 +55,11 @@ chunk = (n + nthr - 1)/nthr
 lo = tid*chunk + 1
 hi = min((tid+1)*chunk,n)
 
+#ifdef BS3_USE_NORM2
+nrm = nrm + (norm2(a(lo:hi)))**2
+#else
 nrm = nrm + dot_product(a(lo:hi),a(lo:hi))
+#endif
 
 !$omp end parallel
 end subroutine
