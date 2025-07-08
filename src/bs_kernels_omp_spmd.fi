@@ -1,0 +1,103 @@
+
+! Assumptions which can be made:
+! - dp is defined to be a double-precision type
+
+subroutine bs1(n,a,b)
+integer, intent(in) :: n
+real(dp), intent(in) :: a(n)
+real(dp), intent(out) :: b(n)
+
+integer :: tid, nthr, chunk, lo, hi
+
+!$omp parallel default(private) shared(a,b,n)
+tid = omp_get_thread_num()
+nthr = omp_get_num_threads()
+chunk = (n + nthr - 1)/nthr
+lo = tid*chunk + 1
+hi = min((tid+1)*chunk,n)
+
+b(lo:hi) = a(lo:hi)
+
+!$omp end parallel
+end subroutine
+
+subroutine bs2(n,alpha,x,beta,y)
+integer, intent(in) :: n
+real(dp), intent(in) :: alpha, x(n), beta
+real(dp), intent(inout) :: y(n)
+integer :: tid, nthr, chunk, lo, hi
+
+!$omp parallel default(private) shared(a,b,n)
+tid = omp_get_thread_num()
+nthr = omp_get_num_threads()
+chunk = (n + nthr - 1)/nthr
+lo = tid*chunk + 1
+hi = min((tid+1)*chunk,n)
+
+y(lo:hi) = alpha*x(lo:hi) + beta*y(lo:hi)
+
+!$omp end parallel
+end subroutine
+
+
+subroutine bs3(n,a,nrm)
+integer, intent(in) :: n
+real(dp), intent(in) :: a(n)
+real(dp), intent(out) ::nrm
+
+integer :: tid, nthr, chunk, lo, hi
+
+nrm = 0.0_dp
+!$omp parallel default(private) shared(a,b,n) reduction(+:nrm)
+tid = omp_get_thread_num()
+nthr = omp_get_num_threads()
+chunk = (n + nthr - 1)/nthr
+lo = tid*chunk + 1
+hi = min((tid+1)*chunk,n)
+
+nrm = nrm + dot_product(a(lo:hi),a(lo:hi))
+
+!$omp end parallel
+end subroutine
+
+
+subroutine bs4(n,x,y,nrm)
+integer, intent(in) :: n
+real(dp), intent(in) :: x(n), y(n)
+real(dp), intent(out) ::nrm
+
+integer :: tid, nthr, chunk, lo, hi
+
+nrm = 0.0_dp
+!$omp parallel default(private) shared(a,b,n) reduction(+:nrm)
+tid = omp_get_thread_num()
+nthr = omp_get_num_threads()
+chunk = (n + nthr - 1)/nthr
+lo = tid*chunk + 1
+hi = min((tid+1)*chunk,n)
+
+nrm = nrm + dot_product(x(lo:hi),y(lo:hi))
+!$omp end parallel
+
+end subroutine
+
+subroutine bs5(n,Ap,alpha,r,rdr)
+integer, intent(in) :: n
+real(dp), intent(in) :: Ap(n), alpha
+real(dp), intent(out) :: r(n), rdr
+
+integer :: tid, nthr, chunk, lo, hi
+
+rdr = 0.0_dp
+!$omp parallel default(private) shared(a,b,n) reduction(+:rdr)
+tid = omp_get_thread_num()
+nthr = omp_get_num_threads()
+chunk = (n + nthr - 1)/nthr
+lo = tid*chunk + 1
+hi = min((tid+1)*chunk,n)
+
+r(lo:hi) = r(lo:hi) + alpha*Ap(lo:hi)
+rdr = rdr + dot_product(r(lo:hi),r(lo:hi))
+
+!$omp end parallel
+end subroutine
