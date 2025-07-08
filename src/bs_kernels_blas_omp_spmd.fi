@@ -1,0 +1,124 @@
+subroutine bs1(n,a,b)
+integer, intent(in) :: n
+real(dp), intent(in) :: a(n)
+real(dp), intent(out) :: b(n)
+
+integer :: tid, nthr, chunk, lo, hi, nlocal
+
+!$omp parallel default(private) shared(a,b,n)
+tid = omp_get_thread_num()
+nthr = omp_get_num_threads()
+chunk = (n + nthr - 1)/nthr
+lo = tid*chunk + 1
+hi = min((tid+1)*chunk,n)
+nlocal = hi-lo+1
+
+call dcopy(nlocal,a(lo),1,b(lo),1)
+
+!$omp end parallel
+
+end subroutine
+
+subroutine bs2(n,alpha,x,beta,y)
+integer, intent(in) :: n
+real(dp), intent(in) :: alpha, x(n), beta
+real(dp), intent(inout) :: y(n)
+
+integer :: tid, nthr, chunk, lo, hi, nlocal
+
+!$omp parallel default(private) shared(n,alpha,x,beta,y)
+tid = omp_get_thread_num()
+nthr = omp_get_num_threads()
+chunk = (n + nthr - 1)/nthr
+lo = tid*chunk + 1
+hi = min((tid+1)*chunk,n)
+nlocal = hi - lo + 1
+
+#if defined(HAVE_DAXPBY)
+call daxpby(nlocal,alpha,x(lo),1,beta,y(lo),1)
+#else
+call dscal(nlocal,beta,y(lo),1)
+call daxpy(nlocal,alpha,x(lo),1,y(lo),1)
+#endif
+
+!$omp end parallel
+
+end subroutine
+
+subroutine bs3(n,a,nrm)
+integer, intent(in) :: n
+real(dp), intent(in) :: a(n)
+real(dp), intent(out) ::nrm
+
+integer :: tid, nthr, chunk, lo, hi, nlocal
+
+nrm = 0.0_dp
+
+!$omp parallel default(private) shared(n,a) reduction(+:nrm)
+tid = omp_get_thread_num()
+nthr = omp_get_num_threads()
+chunk = (n + nthr - 1)/nthr
+lo = tid*chunk + 1
+hi = min((tid+1)*chunk,n)
+nlocal = hi - lo + 1
+
+#ifdef BS3_USE_NRM2
+nrm = nrm + dnrm2(nlocal,a(lo),1))
+#else
+nrm = nrm + ddot(nlocal,a(lo),1,a(lo),1)
+#endif
+
+!$omp end parallel
+
+end subroutine
+
+subroutine bs4(n,x,y,nrm)
+integer, intent(in) :: n
+real(dp), intent(in) :: x(n), y(n)
+real(dp), intent(out) ::nrm
+
+integer :: tid, nthr, chunk, lo, hi, nlocal
+
+nrm = 0.0_dp
+
+!$omp parallel default(private) shared(n,x,y) reduction(+:nrm)
+tid = omp_get_thread_num()
+nthr = omp_get_num_threads()
+chunk = (n + nthr - 1)/nthr
+lo = tid*chunk + 1
+hi = min((tid+1)*chunk,n)
+nlocal = hi - lo + 1
+
+nrm = nrm + ddot(nlocal,x(lo),1,y(lo),1)
+
+!$omp end parallel
+
+end subroutine
+
+subroutine bs5(n,Ap,alpha,r,rdr)
+integer, intent(in) :: n
+real(dp), intent(in) :: Ap(n), alpha
+real(dp), intent(out) :: r(n), rdr
+
+integer :: tid, nthr, chunk, lo, hi, nlocal
+
+rdr = 0.0_dp
+
+!$omp parallel default(private) shared(n,Ap,alpha,r) reduction(+:rdr)
+tid = omp_get_thread_num()
+nthr = omp_get_num_threads()
+chunk = (n + nthr - 1)/nthr
+lo = tid*chunk + 1
+hi = min((tid+1)*chunk,n)
+nlocal = hi - lo + 1
+
+call daxpy(nlocal,alpha,Ap(lo),1,r(lo),1)
+rdr = rdr + ddot(nlocal,r(lo),1,r(lo),1)
+
+!$omp end parallel
+
+! Intel MKL has a mkl_sparse_?_dotmv operation which performs,
+! y := alpha*op(A)*x + beta*y
+! d := sum_i(xi*yi) (real case)
+
+end subroutine

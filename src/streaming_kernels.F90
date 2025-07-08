@@ -97,9 +97,10 @@ contains
 
   end subroutine
 
-
 #if defined(SK_BLAS)
 #include "bs_kernels_blas.fi"
+#if defined(SK_BLAS_OMP_SPMD)
+#include "bs_kernels_blas_omp_spmd.fi"
 #elif defined(SK_LOOPS)
 #include "bs_kernels_loops.fi"
 #elif defined(SK_OMP_PARALLEL_DO)
