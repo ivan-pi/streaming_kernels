@@ -4,7 +4,7 @@
 # -DSK_LOOPS (also OpenMP SIMD available)
 # -DSK_OMP_PARALLEL_DO
 # -DSK_OMP_TARGET_LOOP
-
+# -DSK_OMP_SPMD
 
 FC=gfortran
 FFLAGS=-mcpu=native -O3 -ffast-math
@@ -21,20 +21,20 @@ LDLIBS=
 #LDFLAGS=-L/opt/OpenBLAS/lib
 #LDLIBS=-lopenblas
 
-streaming_kernels: src/streaming_kernels.F90 app/cmdline.f90
-	$(FC) $(FFLAGS) -o $@ $^
+src_files = src/streaming_kernels.F90 app/cmdline.f90
 
-streaming_kernels_loops: FFLAGS += -DSK_LOOPS
-streaming_kernels_loops: src/streaming_kernels.F90 app/cmdline.f90 
-	$(FC) $(FFLAGS) -o $@ $(LDFLAGS) $^ $(LDLIBS)
+streaming_kernels: $(src_files) src/bs_kernels.fi
+	$(FC) $(FFLAGS) -o $@ $(src_files)
 
-streaming_kernels_blas: FFLAGS += -DSK_BLAS
-streaming_kernels_blas: src/streaming_kernels.F90 app/cmdline.f90 
-	$(FC) $(FFLAGS) -o $@ $(LDFLAGS) $^ $(LDLIBS)
+streaming_kernels_loops: $(src_files) src/bs_kernels_loops.fi
+	$(FC) $(FFLAGS) -DSK_LOOPS -o $@ $(LDFLAGS) $(src_files) $(LDLIBS)
 
-streaming_kernels_omp: FFLAGS += -DSK_OMP_PARALLEL_DO -fopenmp
-streaming_kernels_omp: src/streaming_kernels.F90 app/cmdline.f90 
-	$(FC) $(FFLAGS) -o $@ $(LDFLAGS) $^ $(LDLIBS)
+streaming_kernels_blas: $(src_files) src/bs_kernels_blas.fi
+	$(FC) $(FFLAGS) -DSK_BLAS -o $@ $(LDFLAGS) $(src_files) $(LDLIBS)
+
+streaming_kernels_omp: $(src_files) src/bs_kernels_omp.fi
+	$(FC) $(FFLAGS) -DSK_OMP_PARALLEL_DO -o $@ $(LDFLAGS) $(src_files) $(LDLIBS)
+
 
 dot_product_neon.o: src/dot_product_neon.c
 	clang -c -O3 -mcpu=native $<
