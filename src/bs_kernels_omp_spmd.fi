@@ -27,7 +27,7 @@ real(dp), intent(in) :: alpha, x(n), beta
 real(dp), intent(inout) :: y(n)
 integer :: tid, nthr, chunk, lo, hi
 
-!$omp parallel default(private) shared(a,b,n)
+!$omp parallel default(private) shared(n,alpha,x,beta,y)
 tid = omp_get_thread_num()
 nthr = omp_get_num_threads()
 chunk = (n + nthr - 1)/nthr
@@ -48,7 +48,7 @@ real(dp), intent(out) ::nrm
 integer :: tid, nthr, chunk, lo, hi
 
 nrm = 0.0_dp
-!$omp parallel default(private) shared(a,b,n) reduction(+:nrm)
+!$omp parallel default(private) shared(n,a) reduction(+:nrm)
 tid = omp_get_thread_num()
 nthr = omp_get_num_threads()
 chunk = (n + nthr - 1)/nthr
@@ -69,7 +69,7 @@ real(dp), intent(out) ::nrm
 integer :: tid, nthr, chunk, lo, hi
 
 nrm = 0.0_dp
-!$omp parallel default(private) shared(a,b,n) reduction(+:nrm)
+!$omp parallel default(private) shared(n,x,y) reduction(+:nrm)
 tid = omp_get_thread_num()
 nthr = omp_get_num_threads()
 chunk = (n + nthr - 1)/nthr
@@ -89,7 +89,7 @@ real(dp), intent(out) :: r(n), rdr
 integer :: tid, nthr, chunk, lo, hi
 
 rdr = 0.0_dp
-!$omp parallel default(private) shared(a,b,n) reduction(+:rdr)
+!$omp parallel default(private) shared(n,Ap,alpha,r) reduction(+:rdr)
 tid = omp_get_thread_num()
 nthr = omp_get_num_threads()
 chunk = (n + nthr - 1)/nthr

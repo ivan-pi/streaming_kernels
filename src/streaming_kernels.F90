@@ -1,5 +1,14 @@
 module streaming_kernels
+
+#if defined(_OPENMP)
+use omp_lib
+#endif
+
 implicit none
+private
+
+public :: dp, print_config
+public :: bs1, bs2, bs3, bs4, bs5
 
 integer, parameter :: dp = kind(1.0d0)
 
@@ -97,6 +106,8 @@ contains
 #include "bs_kernels_omp.fi"
 #elif defined(SK_OMP_TARGET_LOOP)
 #include "bs_kernels_omp_target.fi"
+#elif defined(SK_OMP_SPMD)
+#include "bs_kernels_omp_spmd.fi"
 #else
 #include "bs_kernels.fi"
 #endif
