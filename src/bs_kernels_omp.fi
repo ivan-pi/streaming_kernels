@@ -18,7 +18,7 @@ real(dp), intent(inout) :: y(n)
 integer :: i
 !$omp parallel do simd
 do i = 1, n
-y(i) = alpha*x(i) + beta*y(i)
+    y(i) = alpha*x(i) + beta*y(i)
 end do
 end subroutine
 
