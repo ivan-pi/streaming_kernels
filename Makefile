@@ -39,6 +39,8 @@ streaming_kernels_blas: $(src_files) src/bs_kernels_blas_omp_spmd.fi
 streaming_kernels_omp: $(src_files) src/bs_kernels_omp.fi
 	$(FC) $(FFLAGS) -DSK_OMP_PARALLEL_DO -o $@ $(LDFLAGS) $(src_files) $(LDLIBS)
 
+streaming_kernels_eigen: $(src_files) bs_kernels_eigen.o
+	$(FC) $(FFLAGS) -DSK_EIGEN -o $@ $(LDFLAGS) $^
 
 dot_product_neon.o: src/dot_product_neon.c
 	clang -c -O3 -mcpu=native $<

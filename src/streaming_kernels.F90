@@ -74,6 +74,42 @@ end interface
     integer :: device = -1
 #endif
 
+
+#if defined(SK_EIGEN)
+interface
+    subroutine bs1(n,a,b)
+        import dp
+        integer, intent(in) :: n
+        real(dp), intent(in) :: a(n)
+        real(dp), intent(out) :: b(n)
+    end subroutine
+    subroutine bs2(n,alpha,x,beta,y)
+        import dp
+        integer, intent(in) :: n
+        real(dp), intent(in) :: alpha, x(n), beta
+        real(dp), intent(inout) :: y(n)
+    end subroutine
+    subroutine bs3(n,a,nrm)
+        import dp
+        integer, intent(in) :: n
+        real(dp), intent(in) :: a(n)
+        real(dp), intent(out) ::nrm
+    end subroutine
+    subroutine bs4(n,x,y,nrm)
+        import dp
+        integer, intent(in) :: n
+        real(dp), intent(in) :: x(n), y(n)
+        real(dp), intent(out) ::nrm
+    end subroutine
+    subroutine bs5(n,Ap,alpha,r,rdr)
+        import dp
+        integer, intent(in) :: n
+        real(dp), intent(in) :: Ap(n), alpha
+        real(dp), intent(out) :: r(n), rdr
+    end subroutine
+end interface
+#endif
+
 contains
 
   subroutine print_config()
@@ -100,9 +136,9 @@ contains
 
 #if defined(SK_BLAS)
 #include "bs_kernels_blas.fi"
-#if defined(SK_BLAS_OMP_SPMD)
+#elif defined(SK_BLAS_OMP_SPMD)
 #include "bs_kernels_blas_omp_spmd.fi"
-#if defined(SK_BLIS)
+#elif defined(SK_BLIS)
 #include "bs_kernels_blis.fi"
 #elif defined(SK_LOOPS)
 #include "bs_kernels_loops.fi"
@@ -112,6 +148,8 @@ contains
 #include "bs_kernels_omp_target.fi"
 #elif defined(SK_OMP_SPMD)
 #include "bs_kernels_omp_spmd.fi"
+#elif defined(SK_EIGEN)
+  ! interfaces are already included above
 #else
 #include "bs_kernels.fi"
 #endif
