@@ -13,7 +13,7 @@ LDFLAGS=
 LDLIBS=
 
 CXX=g++
-CXXFLAGS=-Wall -pedantic -O3 -mcpu=native
+CXXFLAGS=-Wall -pedantic -O3 -mcpu=native -ffast-math
 EIGEN_DIR ?= /opt/homebrew/include/eigen3
 
 #LDFLAGS="-L/opt/homebrew/opt/libomp/lib"
@@ -39,8 +39,15 @@ streaming_kernels_blas: $(src_files) src/bs_kernels_blas_omp_spmd.fi
 streaming_kernels_omp: $(src_files) src/bs_kernels_omp.fi
 	$(FC) $(FFLAGS) -DSK_OMP_PARALLEL_DO -o $@ $(LDFLAGS) $(src_files) $(LDLIBS)
 
+
+
 streaming_kernels_eigen: $(src_files) bs_kernels_eigen.o
 	$(FC) $(FFLAGS) -DSK_EIGEN -o $@ $(LDFLAGS) $^
+bs_kernels_eigen.o: src/bs_kernels_eigen.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -DNDEBUG -I$(EIGEN_DIR) -c $<
+bs_kernels_eigen.s: src/bs_kernels_eigen.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -DNDEBUG -I$(EIGEN_DIR) -S $<
+
 
 dot_product_neon.o: src/dot_product_neon.c
 	clang -c -O3 -mcpu=native $<
@@ -48,8 +55,6 @@ dot_product_neon.o: src/dot_product_neon.c
 flang_fast_sqr.o: src/flang_fast_sqr.f90
 	$(FC) -c $(FFLAGS) $<
 
-bs_kernels_eigen.o: src/bs_kernels_eigen.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(EIGEN_DIR) -c $<
 
 .PHONY: clean
 clean:
