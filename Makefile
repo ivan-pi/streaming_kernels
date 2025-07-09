@@ -7,10 +7,14 @@
 # -DSK_OMP_SPMD
 
 FC=gfortran
-FFLAGS=-mcpu=native -O3 -ffast-math
+FFLAGS=-mcpu=native -O3 -ffast-math -fopenmp
 
 LDFLAGS=
 LDLIBS=
+
+CXX=g++
+CXXFLAGS=-Wall -pedantic -O3 -mcpu=native
+EIGEN_DIR ?= /opt/homebrew/include/eigen3
 
 #LDFLAGS="-L/opt/homebrew/opt/libomp/lib"
 #LDLIBS=-lblas
@@ -29,7 +33,7 @@ streaming_kernels: $(src_files) src/bs_kernels.fi
 streaming_kernels_loops: $(src_files) src/bs_kernels_loops.fi
 	$(FC) $(FFLAGS) -DSK_LOOPS -o $@ $(LDFLAGS) $(src_files) $(LDLIBS)
 
-streaming_kernels_blas: $(src_files) src/bs_kernels_blas.fi
+streaming_kernels_blas: $(src_files) src/bs_kernels_blas_omp_spmd.fi
 	$(FC) $(FFLAGS) -DSK_BLAS -o $@ $(LDFLAGS) $(src_files) $(LDLIBS)
 
 streaming_kernels_omp: $(src_files) src/bs_kernels_omp.fi
@@ -41,6 +45,9 @@ dot_product_neon.o: src/dot_product_neon.c
 
 flang_fast_sqr.o: src/flang_fast_sqr.f90
 	$(FC) -c $(FFLAGS) $<
+
+bs_kernels_eigen.o: src/bs_kernels_eigen.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(EIGEN_DIR) -c $<
 
 .PHONY: clean
 clean:
