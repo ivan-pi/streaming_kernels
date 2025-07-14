@@ -2,11 +2,7 @@
 
 ## Description
 
-This repository provides streaming benchmarks designed to measure memory bandwidth and kernel efficiency. The benchmarks were described in the work
-
-> Chalmers, N., & Warburton, T. (2020). Portable high-order finite element kernels I: Streaming Operations. https://arxiv.org/abs/2009.10917
-
-The code accompying the Chalmers & Warburton article can be found in the [StreamParanumal](https://github.com/paranumal/streamparanumal) repository.
+This repository provides streaming benchmarks designed to measure memory bandwidth and implementation efficiency. 
 
 The benchmarks included are:
 
@@ -16,7 +12,13 @@ The benchmarks included are:
 - **BS4:** Vector Inner Product
 - **BS5:** Fused CG Update
 
-These operations are commonly found in iterative solvers for linear systems, such as the conjugate-gradient method (CG). Benchmarks BS1–BS2 are similar to the classic STREAM benchmarks (copy, scale, add, triad). 
+These operations are commonly found in iterative solvers for linear systems, such as the conjugate-gradient method (CG). Benchmarks BS1–BS2 are similar to the classic STREAM benchmarks (copy & triad). 
+
+The benchmarks presented here follow the work
+
+> Chalmers, N., & Warburton, T. (2020). Portable high-order finite element kernels I: Streaming Operations. https://arxiv.org/abs/2009.10917
+
+The code accompanying the Chalmers & Warburton article can be found in the [StreamParanumal](https://github.com/paranumal/streamparanumal) repository.
 
 ## How to Build and Run the Benchmark
 
@@ -31,7 +33,7 @@ make
 The default executable target is named `./streaming_kernels`. 
 See the Makefile for other available targets.
 
-The options available are:
+The executable has the following options available:
 
 ```txt
  Usage: ./streaming_kernels [OPTIONS]
@@ -50,9 +52,19 @@ The options available are:
 
 (Note: The options are still subject of change.)
 
+### Optional dependencies
+
+- BLAS
+- [BLIS](https://github.com/flame/blis)
+- [Eigen++](https://eigen.tuxfamily.org/index.php?title=Main_Page)
+
+Benchmarks 1-5 can also be formulated in terms of BLAS Level 1 operations.
+By linking against different BLAS libraries, we can judge the implementation quality and
+how they interact with OpenMP. 
+
 ---
 
-The remainder of this file is a "link dump". 
+The remainder of this file is currently a "link dump". 
 
 ## Related
 
