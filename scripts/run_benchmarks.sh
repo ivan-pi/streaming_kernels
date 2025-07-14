@@ -1,6 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
+
+# FIXME: pass n as optional parameter
 
 EXE="./streaming_kernels -n 10000000"
 TEST_FLAG="-t BS3"
@@ -19,7 +21,7 @@ expand_values="2 3 4 5 6"
 run_benchmark() {
   label="$1"
   echo "==> Running benchmark: $label"
-  $EXE $TEST_FLAG | grep 'BS3$'
+  $EXE $TEST_FLAG  | awk '$1 == "BS3"'
 }
 
 # Loop over simple configs

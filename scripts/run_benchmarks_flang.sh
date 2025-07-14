@@ -16,7 +16,7 @@ config_flags=(
 run_benchmark() {
   label="$1"
   echo "==> Running benchmark: $label"
-  $EXE $TEST_FLAG | grep 'BS3$'
+  $EXE $TEST_FLAG | awk '$1 == "BS3"'
 }
 
 # Loop over configurations

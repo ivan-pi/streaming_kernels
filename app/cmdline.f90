@@ -13,6 +13,7 @@ program cmdline_parser
   character(len=3), parameter :: test_names(*) = ["BS1", "BS2", "BS3", "BS4", "BS5"]
   logical :: test_enabled(5)
   real :: bw_rates(5)
+  real :: min_time
 
   !vvv---- Executable code starts here ----vvv
 
@@ -32,6 +33,7 @@ program cmdline_parser
   tests_str = ''
   range_is_log = .false.
 
+  min_time = 0.5
   fp32_test = .false.
   stats = .true.
 
@@ -84,7 +86,13 @@ program cmdline_parser
       call get_command_argument(i+1, arg)
       read(arg, *) repetitions
       i = i + 1
-
+    case ('-z','--duration')
+      if (i == argc) call usage('ERROR: --duration requires a real argument')
+      call get_command_argument(i+1, arg)
+      read(arg, *) min_time
+      if (min_time < 0) call usage('ERROR: --duration requires a positive argument')
+      ! FIXME: compare min_time to timer precision
+      i = i + 1
     case ('--stats')
       stats = .true.
 
@@ -166,17 +174,17 @@ program cmdline_parser
 !    print *, "--- Running test ---"//test_names(t)
 
     if (n_set) then
-      call run_test(t=t,n=n_elements,reps=repetitions)
+      call run_test(t=t,n=n_elements,reps=repetitions,min_time=min_time)
     else
       if (range_set) then
         ! Linear range
         do sz = nstart, nend, nstep
-          call run_test(t=t,n=sz,reps=repetitions)
+          call run_test(t=t,n=sz,reps=repetitions,min_time=min_time)
         end do
       else if (logrange_set) then
         ! Logarithmic range
         do i = 1, size(nrange)
-          call run_test(t=t,n=nrange(i),reps=repetitions)
+          call run_test(t=t,n=nrange(i),reps=repetitions,min_time=min_time)
         end do
       end if
     end if
@@ -185,11 +193,13 @@ program cmdline_parser
 
 contains
 
-  subroutine run_test(t,n,reps)
+  subroutine run_test(t,n,reps,min_time)
 
     use streaming_kernels, only: bs1,bs2,bs3,bs4,bs5
 
     integer, intent(in) :: t, n, reps
+    real, intent(in) :: min_time
+
     integer, parameter :: dp = kind(1.0d0), sp = kind(1.0e0)
 
     integer(8) :: bw(5)
@@ -197,8 +207,6 @@ contains
     real(dp), allocatable :: x(:), y(:)
     real(dp) :: alpha, beta, nrm, rdr
     real :: elapsed
-
-    real, parameter :: min_time = 0.5
 
     integer(8) :: t1, t2, rate
 
@@ -210,7 +218,9 @@ contains
     bw(2) = 8 + 8 + 8 ! y = alpha*x + beta*y
     bw(3) = 8         ! res = dot_product(x,x)
     bw(4) = 8 + 8     ! res = dot_product(x,y)
-    bw(5) = 8 + 8 + 8 ! r = r + alpha*Ap; res = dot_product(r,r)
+
+    bw(5) = 8 + 8 + 8 ! r = r + alpha*Ap; res = dot_product(r,r);
+                      ! we assume the dot product is done on the fly
 
     call system_clock(count_rate=rate)
 
@@ -231,7 +241,8 @@ contains
     call random_number(y)
 
     if (reps >= 1) then
-      ! Run the benchmark for a fixed number of repetitions
+      ! Run the benchmark for a fixed number of repetitions;
+      ! min_time is unused in this mode
 
       select case(t)
       case(1)
@@ -272,7 +283,8 @@ contains
       end select
       elapsed = elapsed / reps
     else
-      ! Run each benchmark for 3 reps or at-least 0.5 seconds
+      ! Run each benchmark for 3 reps or at-least min_time;
+      ! repetitions are unused in this mode
 
       nreps = 3
 
@@ -354,7 +366,7 @@ contains
 
   subroutine print_help(name)
     character(len=*), intent(in) :: name
-    write(*,*) 'Usage: ', trim(name), ' [OPTIONS]'
+    write(*,*) 'Usage: '//trim(name)//' [OPTIONS]'
     write(*,*) 'Options:'
     write(*,*) '  -d, --device <int>      Device number'
     write(*,*) '  -n <int>                Number of elements (mutually exclusive with --range, --log-range)'
@@ -362,7 +374,9 @@ contains
     write(*,*) '  -r, --range a:b[:step]  Linear range (e.g. 10:100:5)'
     write(*,*) '  --log-range a:b:n       Logarithmic range with n points (e.g. 1:1000:4)'
     write(*,*) '  -t, --tests "BS1,BS3"   Comma-separated list of tests in quotes'
-    write(*,*) '  -k, --repeat <int>      Number of repetitions'
+    write(*,*) '  -z, --duration <real>   Minimal test duration (in seconds); default: 0.5'
+    write(*,*) '  -k, --repeat <int>      Number of repetitions; if present the tests will be run'
+    write(*,*) '                          for a fixed number of repetitions (--duration will be ignored)'
     write(*,*) '  --stats                 Show statistics'
     write(*,*) '  --help                  Show this help message'
     write(*,*) '  --version               Show program version'
