@@ -1,10 +1,9 @@
 module streaming_kernels
 
-#if defined(_OPENMP)
-use omp_lib
-#endif
+use, intrinsic :: iso_fortran_env, only: compiler_options, compiler_version
 
 implicit none
+
 private
 
 public :: dp, print_config
@@ -110,38 +109,78 @@ interface
 end interface
 #endif
 
+
+#ifdef USE_ARM_PL
+interface
+! https://developer.arm.com/documentation/101004/2507/General-information/Library-version-and-build-information
+    subroutine armplversion(major, minor, patch, build, tag) bind(c)
+! FIXME: not sure what the interface is!
+        use, intrinsic :: iso_c_binding, only: c_int, c_char
+        integer(c_int) :: major, minor, patch, build
+        character(len=1,kind=c_char), optional :: tag(*)
+    end subroutine
+    subroutine armplinfo
+    end subroutine
+end interface
+#endif
+
 contains
 
-  subroutine print_config()
+  subroutine print_config(verbose)
+    !$ use omp_lib
+    logical, intent(in), optional :: verbose
+
+    integer :: k
+
+    if (present(verbose)) then
+        if (.not. verbose) return
+    end if
+
+    write(*,'(/,"Compiler information: ")')
+
+    ! Example output summary
+    write(*,'(A,A)') '  version: ', compiler_version()
+    write(*,'(A,A)') '  options: ', compiler_options()
+
 
 #if defined(_OPENMP)
-        use omp_lib
-        integer :: k
+        write(*,'(/,"OpenMP Information: ")')
 
         !$omp parallel
         !$omp single
         k = omp_get_num_threads()
-        write(*,'("OpenMP enabled, running with ",I0," threads")') k
         !$omp end single
         !$omp end parallel
+        write(*,'("  Num. threads: ",I0)') k
+
+        write(*,'("  Num. devices: ",I0)') omp_get_num_devices()
 
         device = omp_get_default_device()
-
         if (device == omp_get_initial_device()) then
-            print '(A)', "OpenMP default device is the HOST device."
+            write(*,'("    Default device: HOST (",I0,")")') device
+        else
+            write(*,'("    Default device: GPU (",I0,")")') device
         end if
 #endif
 
+#ifdef USE_ARM_PL
+        write(*,'(/,"BLAS Information: ")')
+        call armplinfo
+#endif
   end subroutine
+
+!
+! The includes files define the streaming kernels bs1 to bs5
+!
+! See respective include file for details
+!
 
 #if defined(SK_BLAS)
 #include "bs_kernels_blas.fi"
-#elif defined(SK_BLAS_OMP_SPMD)
-#include "bs_kernels_blas_omp_spmd.fi"
 #elif defined(SK_BLIS)
 #include "bs_kernels_blis.fi"
-#elif defined(SK_LOOPS)
-#include "bs_kernels_loops.fi"
+#elif defined(SK_BLAS_OMP_SPMD)
+#include "bs_kernels_blas_omp_spmd.fi"
 #elif defined(SK_OMP_PARALLEL_DO)
 #include "bs_kernels_omp.fi"
 #elif defined(SK_OMP_TARGET_LOOP)
@@ -150,6 +189,8 @@ contains
 #include "bs_kernels_omp_spmd.fi"
 #elif defined(SK_EIGEN)
   ! interfaces are already included above
+#elif defined(SK_LOOPS)
+#include "bs_kernels_loops.fi"
 #else
 #include "bs_kernels.fi"
 #endif

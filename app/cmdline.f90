@@ -141,10 +141,6 @@ program cmdline_parser
     else if (range_set .or. logrange_set) then
       if (range_is_log) then
         write(*,*) 'Log range (--log-range):', nrange
-
-          do i = 1, size(nrange)
-            print *, nrange(i), nrange(i)**2
-          end do 
       else
         write(*,*) 'Linear range (--range):', nstart, nend, nstep
       end if
@@ -161,7 +157,7 @@ program cmdline_parser
   end if
 
   block
-    use streaming_kernels
+    use streaming_kernels, only: print_config
     call print_config()
   end block
 
