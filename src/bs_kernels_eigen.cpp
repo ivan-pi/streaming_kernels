@@ -42,4 +42,22 @@ void bs5_(const int* n, const double* Ap, const double* alpha,
     *rdr = vr.squaredNorm();
 }
 
+int eigen_get_num_threads() {
+    return Eigen::nbThreads();
+}
+
+void eigen_get_version(int *world, int *major, int *minor) {
+    *world = EIGEN_WORLD_VERSION;
+    *major = EIGEN_MAJOR_VERSION;
+    *minor = EIGEN_MINOR_VERSION;
+}
+
+int eigen_get_enable_openmp() {
+#ifdef EIGEN_HAS_OPENMP
+    return 1;
+#else
+    return 0;
+#endif
+}
+
 } // extern "C"

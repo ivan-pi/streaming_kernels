@@ -50,6 +50,14 @@ interface
     end subroutine
 end interface
 
+interface
+    pure function strlen(str) bind(c,name="strlen")
+        use, intrinsic :: iso_c_binding, only: c_ptr, c_size_t
+        type(c_ptr), value :: str
+        integer(c_size_t) :: strlen
+    end function
+end interface
+
 #if HAVE_NEON
 interface
     ! dot_product_neon_fma_unroll8_pow2_tail
@@ -107,6 +115,19 @@ interface
         real(dp), intent(in) :: Ap(n), alpha
         real(dp), intent(out) :: r(n), rdr
     end subroutine
+
+    subroutine eigen_get_version(world,major,minor) bind(c)
+        import c_int
+        integer(c_int), intent(out) :: world, major, minor
+    end subroutine
+    function eigen_get_num_threads() bind(c)
+        import c_int
+        integer(c_int) :: eigen_get_num_threads
+    end function
+    function eigen_get_enable_openmp() bind(c)
+        import c_int
+        integer(c_int) :: eigen_get_enable_openmp
+    end function
 end interface
 #endif
 
@@ -126,6 +147,10 @@ end interface
 #endif
 
 #ifdef SK_BLIS
+!
+! BLIS Interfaces
+!
+
 integer(c_int), parameter :: BLIS_NO_CONJUGATE = 0
 integer(c_int), parameter :: BLIS_CONJUGATE    = 16
 
@@ -143,10 +168,22 @@ interface
         use, intrinsic :: iso_c_binding, only: c_ptr
         type(c_ptr) :: bli_info_get_version_str
     end function
-    pure function strlen(str) bind(c,name="strlen")
-        use, intrinsic :: iso_c_binding, only: c_ptr, c_size_t
-        type(c_ptr), value :: str
-        integer(c_size_t) :: strlen
+    function bli_thread_get_num_threads() bind(c)
+        use, intrinsic :: iso_c_binding, only: c_int
+        integer(c_int) :: bli_thread_get_num_threads  ! dim_t
+    end function
+
+    function bli_info_get_enable_threading() bind(c)
+        use, intrinsic :: iso_c_binding, only: c_int
+        integer(c_int) :: bli_info_get_enable_openmp ! gint_t
+    end function
+    function bli_info_get_enable_openmp() bind(c)
+        use, intrinsic :: iso_c_binding, only: c_int
+        integer(c_int) :: bli_info_get_enable_openmp ! gint_t
+    end function
+    function bli_info_get_enable_pthreads() bind(c)
+        use, intrinsic :: iso_c_binding, only: c_int
+        integer(c_int) :: bli_info_get_enable_pthreads ! gint_t
     end function
 
     subroutine bli_daxpyv(conjx,n,alpha,x,incx,y,incy) bind(c)
@@ -177,6 +214,29 @@ interface
         real(c_double), intent(in) :: x(*), y(*)
         real(c_double), intent(out) :: rho
     end subroutine
+end interface
+#endif
+
+#ifdef USE_OPENBLAS
+! Utility functions from OpenBLAS
+!   http://www.openmathlib.org/OpenBLAS/docs/extensions/#utility-functions
+interface
+    function openblas_get_parallel() bind(c)
+        use, intrinsic :: iso_c_binding, only: c_int
+        integer(c_int) :: openblas_get_parallel
+    end function
+    function openblas_get_config() bind(c)
+        use, intrinsic :: iso_c_binding, only: c_ptr
+        type(c_ptr) :: openblas_get_config
+    end function
+    function openblas_get_num_procs() bind(c)
+        use, intrinsic :: iso_c_binding, only: c_int
+        integer(c_int) :: openblas_get_num_procs
+    end function
+    function openblas_get_num_threads() bind(c)
+        use, intrinsic :: iso_c_binding, only: c_int
+        integer(c_int) :: openblas_get_num_threads
+    end function
 end interface
 #endif
 
@@ -219,26 +279,90 @@ contains
         end if
 #endif
 
+#ifdef SK_BLAS
         write(*,'(/,"BLAS Information: ")')
+
 #if defined(USE_ARM_PL)
         call armplinfo
-#elif defined(SK_BLIS)
-        block
-            use, intrinsic :: iso_c_binding
+
+#elif defined(USE_OPENBLAS)
+
+        write(*,'(A)') "  Library: OpenBLAS"
+
+        openblas_config: block
             type(c_ptr) :: str_p
-            str_p = bli_info_get_version_str()
+            str_p = openblas_get_config()
             block
                 character(len=strlen(str_p)), pointer :: str
                 call c_f_pointer(str_p,str)
+                write(*,'(A)') "  Config: "//str
+            end block
+        end block openblas_config
+
+        write(*,'(A)',advance='no') "Threading Mode: "
+        select case(openblas_get_parallel())
+        case(0)
+            write(*,'(A)') "Sequential"
+        case(1)
+            write(*,'(A)') "Platform-based"
+        case(2)
+            write(*,'(A)') "OpenMP-based"
+        end select.
+        write(*,'(A,I0)') "  Num. processors: ", openblas_get_num_procs()
+        write(*,'(A,I0)') "  Num. threads: ", openblas_get_num_threads()
+
+#else
+        write(*,'(A)') "  Library: Unknown"
+#endif
+
+#elif defined(SK_BLIS)
+        write(*,'(/,"BLIS Information: ")')
+
+        blis_info: block
+            use, intrinsic :: iso_c_binding
+            type(c_ptr) :: version_str_p, arch_str_p
+            
+            version_str_p = bli_info_get_version_str()
+            block
+                character(len=strlen(version_str_p)), pointer :: str
+                call c_f_pointer(version_str_p,str)
                 write(*,'(A)') "  Version: "//str
             end block
-            str_p = bli_arch_string(bli_arch_query_id())
+
+            arch_str_p = bli_arch_string(bli_arch_query_id())
             block
-                character(len=strlen(str_p)), pointer :: str
-                call c_f_pointer(str_p,str)
+                character(len=strlen(arch_str_p)), pointer :: str
+                call c_f_pointer(arch_str_p,str)
                 write(*,'(A)') "  Arch: "//str
             end block
-        end block
+
+            write(*,'(A)',advance='no') "  Threading mode: " 
+            if (bli_info_get_enable_threading() == 0) then
+                write(*,'(A)') "Sequential"
+            else if (bli_info_get_enable_openmp() == 1) then
+                write(*,'(A)') "OpenMP"
+            else if (bli_info_get_enable_pthreads() == 1) then
+                write(*,'(A)') "pthreads"
+            end if
+            write(*,'(A,I0)') "  Num. threads: ", bli_thread_get_num_threads()
+
+        end block blis_info
+
+#elif defined(SK_EIGEN)
+        write(*,'(/,"Eigen Information: ")')
+        eigen_info: block
+            integer :: world, major, minor
+            call eigen_get_version(world,major,minor)
+            write(*,'("  Version: ",I0,".",I0,".",I0)') world, major, minor
+            
+            write(*,'(A)',advance='no') "  Threading mode: "
+            if (eigen_get_enable_openmp() == 1) then
+                write(*,'(A)') "OpenMP"
+            else
+                write(*,'(A)') "Sequential"
+            end if
+            write(*,'("  Num. threads: ", I0)') eigen_get_num_threads()
+        end block eigen_info
 #endif
 
   end subroutine
