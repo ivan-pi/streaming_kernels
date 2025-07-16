@@ -1,6 +1,7 @@
 module streaming_kernels
 
 use, intrinsic :: iso_fortran_env, only: compiler_options, compiler_version
+use, intrinsic :: iso_c_binding, only: c_int, c_double
 
 implicit none
 
@@ -124,6 +125,61 @@ interface
 end interface
 #endif
 
+#ifdef SK_BLIS
+integer(c_int), parameter :: BLIS_NO_CONJUGATE = 0
+integer(c_int), parameter :: BLIS_CONJUGATE    = 16
+
+interface
+    function bli_arch_query_id() bind(c,name="bli_arch_query_id")
+        use, intrinsic :: iso_c_binding, only: c_int
+        integer(c_int) :: bli_arch_query_id
+    end function
+    function bli_arch_string(id) bind(c,name="bli_arch_string")
+        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+        integer(c_int), value :: id
+        type(c_ptr) :: bli_arch_string
+    end function
+    function bli_info_get_version_str() bind(c,name="bli_info_get_version_str")
+        use, intrinsic :: iso_c_binding, only: c_ptr
+        type(c_ptr) :: bli_info_get_version_str
+    end function
+    pure function strlen(str) bind(c,name="strlen")
+        use, intrinsic :: iso_c_binding, only: c_ptr, c_size_t
+        type(c_ptr), value :: str
+        integer(c_size_t) :: strlen
+    end function
+
+    subroutine bli_daxpyv(conjx,n,alpha,x,incx,y,incy) bind(c)
+        import c_int, c_double
+        integer(c_int), value :: conjx
+        integer(c_int), value :: n, incx, incy
+        real(c_double), intent(in) :: alpha, x(*)
+        real(c_double), intent(inout) :: y(*)
+    end subroutine
+    subroutine bli_daxpbyv(conjx,n,alpha,x,incx,beta,y,incy) bind(c)
+        import c_int, c_double
+        integer(c_int), value :: conjx
+        integer(c_int), value :: n, incx, incy
+        real(c_double), intent(in) :: alpha, x(*), beta
+        real(c_double), intent(inout) :: y(*)
+    end subroutine
+    subroutine bli_dcopyv(conjx,n,x,incx,y,incy) bind(c)
+        import c_int, c_double
+        integer(c_int), value :: conjx
+        integer(c_int), value :: n, incx, incy
+        real(c_double), intent(in) :: x(*)
+        real(c_double), intent(inout) :: y(*)
+    end subroutine
+    subroutine bli_ddotv(conjx,conjy,n,x,incx,y,incy,rho) bind(c)
+        import c_int, c_double
+        integer(c_int), value :: conjx, conjy
+        integer(c_int), value :: n, incx, incy
+        real(c_double), intent(in) :: x(*), y(*)
+        real(c_double), intent(out) :: rho
+    end subroutine
+end interface
+#endif
+
 contains
 
   subroutine print_config(verbose)
@@ -163,10 +219,28 @@ contains
         end if
 #endif
 
-#ifdef USE_ARM_PL
         write(*,'(/,"BLAS Information: ")')
+#if defined(USE_ARM_PL)
         call armplinfo
+#elif defined(SK_BLIS)
+        block
+            use, intrinsic :: iso_c_binding
+            type(c_ptr) :: str_p
+            str_p = bli_info_get_version_str()
+            block
+                character(len=strlen(str_p)), pointer :: str
+                call c_f_pointer(str_p,str)
+                write(*,'(A)') "  Version: "//str
+            end block
+            str_p = bli_arch_string(bli_arch_query_id())
+            block
+                character(len=strlen(str_p)), pointer :: str
+                call c_f_pointer(str_p,str)
+                write(*,'(A)') "  Arch: "//str
+            end block
+        end block
 #endif
+
   end subroutine
 
 !
