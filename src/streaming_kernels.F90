@@ -311,6 +311,8 @@ contains
         write(*,'(A,I0)') "  Num. processors: ", openblas_get_num_procs()
         write(*,'(A,I0)') "  Num. threads: ", openblas_get_num_threads()
 
+#elif defined(USE_MKL)
+        write(*,'(A)') "  Library: Intel MKL"
 #else
         write(*,'(A)') "  Library: Unknown"
 #endif

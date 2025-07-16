@@ -55,6 +55,9 @@ The executable has the following options available:
 ### Optional dependencies
 
 - BLAS
+  * [OpenBLAS](https://github.com/OpenMathLib/OpenBLAS)
+  * [Arm Performance Libraries](https://developer.arm.com/documentation/101004/latest/)
+  * [Accelerate BLAS](https://developer.apple.com/documentation/accelerate/blas-library) (Apple-only)
 - [BLIS](https://github.com/flame/blis)
 - [Eigen++](https://eigen.tuxfamily.org/index.php?title=Main_Page)
 
@@ -68,17 +71,17 @@ The remainder of this file is currently a "link dump".
 
 ## Related
 
-- StreamParanumal: https://github.com/paranumal/streamparanumal
-- BabelStream: https://github.com/UoB-HPC/BabelStream
-- STREAM: https://www.cs.virginia.edu/stream/
-- Livermore Loops: https://www.netlib.org/benchmark/
-- Bandwidth Benchmark: https://github.com/RRZE-HPC/TheBandwidthBenchmark
+- [STREAM](https://www.cs.virginia.edu/stream/)
+- [BabelStream](https://github.com/UoB-HPC/BabelStream)
+- [TheBandwidthBenchmark](https://github.com/RRZE-HPC/TheBandwidthBenchmark)
   * Fortran version: https://github.com/RRZE-HPC/TheBandwidthBenchmark-F90
+- [RaiderSTREAM](https://github.com/michael-beebe/RaiderSTREAM)
+- [Livermore Loops](https://www.netlib.org/benchmark/livermorec)
 
 Other BW-related benchmarks:
 
-- TeaLeaf: https://github.com/UK-MAC/TeaLeaf
-- Himeno: https://i.riken.jp/en/supercom/documents/himenobmt/
+- [TeaLeaf](https://github.com/UK-MAC/TeaLeaf)
+- [Himeno](https://i.riken.jp/en/supercom/documents/himenobmt/)
 - https://github.com/paranumal/libparanumal
 
 Vendor benchmarks:
