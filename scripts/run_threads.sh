@@ -47,10 +47,6 @@ else
   MAX_THREADS=$HW_THREADS
 fi
 
-# --- Thread Pinning Configuration ---
-export OMP_PLACES=cores
-export OMP_PROC_BIND=spread
-
 printf "Running %s (Max Threads: %d)\n" "$TEST_NAME" "$MAX_THREADS"
 printf "%-8s %-15s %-15s\n" "Threads" "Time(s)" "Rate(GB/s)"
 

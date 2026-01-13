@@ -3,12 +3,18 @@
 # Configuration
 SCRIPT="./scripts/run_threads.sh"
 SIZE=61341696
-MAX_T=16 # Optional: override thread count here
+MAX_T=6 # Optional: override thread count here
 EXE_NAME="./streaming_kernels"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 ZIP_NAME="bench_results_${TIMESTAMP}.zip"
 
 echo "Starting Benchmark Suite..."
+
+echo "------------------------------------------------"
+echo "Environment Check:"
+echo "  OMP_PLACES:    ${OMP_PLACES:-NOT SET (using runtime default)}"
+echo "  OMP_PROC_BIND: ${OMP_PROC_BIND:-NOT SET (using runtime default)}"
+echo "------------------------------------------------"
 
 # Run the 5 tests
 for i in {1..5}; do
