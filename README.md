@@ -65,6 +65,11 @@ Benchmarks 1-5 can also be formulated in terms of BLAS Level 1 operations.
 By linking against different BLAS libraries, we can judge the implementation quality and
 how they interact with OpenMP. 
 
+The following preprocessor options are can be enabled (only applicable to certain implementations):
+- `HAVE_DAXPBY`: enable call to `DAXPBY` instead of `DSCAL`+`DAXPY`
+- `OMP_SIMDLEN`: enable `simdlen(...)` clause
+- `BS3_USE_NORM2`: use `DNRM2` instead of `DDOT`
+
 ---
 
 The remainder of this file is currently a "link dump". 
@@ -97,6 +102,7 @@ Vendor benchmarks:
 
 ## Literature
 
+- [Performance analysis of matrix-free conjugate gradient kernels using SYCL](https://doi.org/10.1145/3529538.3529993)
 - https://arxiv.org/abs/2009.10917
 - https://doi.org/10.1109/PMBS56514.2022.00013
 - https://arxiv.org/pdf/2309.05445
