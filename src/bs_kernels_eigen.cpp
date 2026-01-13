@@ -23,7 +23,11 @@ void bs2_(const int* n, const double* alpha, const double* x,
 // Subroutine: nrm = dot_product(a,a)
 void bs3_(const int* n, const double* a, double* nrm) {
     Eigen::Map<const Eigen::VectorXd> va(a, *n);
+#ifdef BS3_USE_NORM2
     *nrm = va.squaredNorm();  // Equivalent to dot(a,a)
+#else
+    *nrm = va.dot(va);
+#endif
 }
 
 // Subroutine: nrm = dot_product(x,y)

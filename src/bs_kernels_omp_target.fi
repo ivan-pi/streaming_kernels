@@ -51,7 +51,8 @@ end subroutine
 subroutine bs5(n,Ap,alpha,r,rdr)
 integer, intent(in) :: n
 real(dp), intent(in) :: Ap(n), alpha
-real(dp), intent(out) :: r(n), rdr
+real(dp), intent(inout) :: r(n)
+real(dp), intent(out) :: rdr
 integer :: i
 rdr = 0.0_dp
 !$omp target teams loop reduction(+:rdr)

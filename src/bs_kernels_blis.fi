@@ -40,7 +40,8 @@ end subroutine
 subroutine bs5(n,Ap,alpha,r,rdr)
 integer, intent(in) :: n
 real(dp), intent(in) :: Ap(n), alpha
-real(dp), intent(out) :: r(n), rdr
+real(dp), intent(inout) :: r(n)
+real(dp), intent(out) :: rdr
 
 call bli_daxpyv(BLIS_NO_CONJUGATE,n,alpha,Ap,1,r,1)
 call bli_ddotv(BLIS_NO_CONJUGATE,BLIS_NO_CONJUGATE,n,r,1,r,1,rdr)

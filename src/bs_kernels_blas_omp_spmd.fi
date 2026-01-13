@@ -1,3 +1,11 @@
+!
+! This implementation is to be used in combination
+! with a single-threaded BLAS library.
+! Most optimized BLAS libraries already use
+! threading internally, which can potentially
+! clash with the OpenMP multi-threading done herein.
+!
+
 subroutine bs1(n,a,b)
 integer, intent(in) :: n
 real(dp), intent(in) :: a(n)
@@ -98,7 +106,8 @@ end subroutine
 subroutine bs5(n,Ap,alpha,r,rdr)
 integer, intent(in) :: n
 real(dp), intent(in) :: Ap(n), alpha
-real(dp), intent(out) :: r(n), rdr
+real(dp), intent(inout) :: r(n)
+real(dp), intent(out) :: rdr
 
 integer :: tid, nthr, chunk, lo, hi, nlocal
 

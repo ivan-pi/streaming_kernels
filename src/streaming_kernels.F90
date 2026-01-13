@@ -2,6 +2,7 @@ module streaming_kernels
 
 use, intrinsic :: iso_fortran_env, only: compiler_options, compiler_version
 use, intrinsic :: iso_c_binding, only: c_int, c_double
+!$ use omp_lib, only: omp_get_thread_num, omp_get_num_threads
 
 implicit none
 
@@ -113,7 +114,8 @@ interface
         import dp
         integer, intent(in) :: n
         real(dp), intent(in) :: Ap(n), alpha
-        real(dp), intent(out) :: r(n), rdr
+        real(dp), intent(inout) :: r(n)
+        real(dp), intent(out) :: rdr
     end subroutine
 
     subroutine eigen_get_version(world,major,minor) bind(c)
