@@ -17,3 +17,9 @@
 # (Common default names)
 *.exe
 a.out
+
+# Other
+results/
+
+# Logs, misc text files
+*.txt
