@@ -269,8 +269,8 @@ contains
         k = omp_get_num_threads()
         !$omp end single
         !$omp end parallel
-        write(*,'("  Num. threads: ",I0)') k
 
+        write(*,'("  Num. threads: ",I0)') k
         write(*,'("  Num. devices: ",I0)') omp_get_num_devices()
 
         device = omp_get_default_device()
@@ -284,7 +284,7 @@ contains
 #ifdef SK_BLAS
         write(*,'(/,"BLAS Information: ")')
 
-#if defined(USE_ARM_PL)
+#if defined(USE_ARMPL)
         call armplinfo
 
 #elif defined(USE_OPENBLAS)
@@ -314,7 +314,12 @@ contains
         write(*,'(A,I0)') "  Num. threads: ", openblas_get_num_threads()
 
 #elif defined(USE_MKL)
-        write(*,'(A)') "  Library: Intel MKL"
+        mkl: block
+            character(len=198) :: buffer
+            call mkl_get_version_string(buffer)
+            write(*,'(A)') "  Library: Intel oneAPI MKL"
+            write(*,'(A)') "    Version: "//trim(buffer)
+        end block mkl
 #elif defined(USE_NVPL)
         nvpl: block
             integer, external :: nvpl_blas_get_version
