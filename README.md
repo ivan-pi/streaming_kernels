@@ -58,6 +58,7 @@ The executable has the following options available:
   * [OpenBLAS](https://github.com/OpenMathLib/OpenBLAS)
   * [Arm Performance Libraries](https://developer.arm.com/documentation/101004/latest/)
   * [Accelerate BLAS](https://developer.apple.com/documentation/accelerate/blas-library) (Apple-only)
+  * [NVPL BLAS](https://docs.nvidia.com/nvpl/latest/blas/index.html)
 - [BLIS](https://github.com/flame/blis)
 - [Eigen++](https://eigen.tuxfamily.org/index.php?title=Main_Page)
 
@@ -69,6 +70,15 @@ The following preprocessor options are can be enabled (only applicable to certai
 - `HAVE_DAXPBY`: enable call to `DAXPBY` instead of `DSCAL`+`DAXPY`
 - `OMP_SIMDLEN`: enable `simdlen(...)` clause
 - `BS3_USE_NORM2`: use `DNRM2` instead of `DDOT`
+
+Optionally, when `-D SK_BLAS` is in effect, turn on the pertinent preprocessor option to print a library version message:
+
+| BLAS Library | Option |
+|--------------|--------|
+| ArmPL | `USE_ARMPL` |
+| Intel OneAPI MKL | `USE_MKL` |
+| NVPL BLAS | `USE_NVPL` |
+| OpenBLAS | `USE_OPENBLAS` |
 
 ---
 

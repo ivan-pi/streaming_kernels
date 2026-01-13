@@ -315,6 +315,14 @@ contains
 
 #elif defined(USE_MKL)
         write(*,'(A)') "  Library: Intel MKL"
+#elif defined(USE_NVPL)
+        nvpl: block
+            integer, external :: nvpl_blas_get_version
+            integer, external :: nvpl_blas_get_max_threads
+            write(*,'(A)')    "  Library: NVPL"
+            write(*,'(A,I0)') "    Version: ", nvpl_blas_get_version()
+            write(*,'(A,I0)') "    Max. threads: ", nvpl_blas_get_max_threads()
+        end block nvpl
 #else
         write(*,'(A)') "  Library: Unknown"
 #endif
@@ -386,7 +394,7 @@ contains
 #elif defined(SK_OMP_PARALLEL_DO)
 #include "bs_kernels_omp.fi"
 #elif defined(SK_OMP_TARGET_LOOP)
-#include "bs_kernels_omp_target.fi"
+#include "bs_kernels_omp_target.fi"sim
 #elif defined(SK_OMP_SPMD)
 #include "bs_kernels_omp_spmd.fi"
 #elif defined(SK_EIGEN)
