@@ -1,0 +1,19 @@
+# Compiled Object files
+*.o
+*.obj
+
+# Fortran Module files (Compiler-generated interfaces)
+*.mod
+*.smod
+
+# Compiled Libraries
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+
+# Executables
+# (Common default names)
+*.exe
+a.out
